@@ -192,13 +192,13 @@ app.get("/", (c) => {
         {user.emailVerified ? (
           <div>Current user: {JSON.stringify(user)}</div>
         ) : (
-          <form method="POST" action="/email-verification">
+          <form method="post" action="/email-verification">
             <input name="code" />
             <button>verify</button>
           </form>
         )}
 
-        <form method="POST" action="/logout">
+        <form method="post" action="/logout">
           <button>logout</button>
         </form>
       </Layout>,

@@ -2,6 +2,6 @@ name = "cloudflare-hono-lucia-auth"
 compatibility_date = "2023-12-01"
 
 [[d1_databases]]
-database_id = "ba017be7-82c3-48b4-a8d8-82b437b9f711"
-binding = "DB"
+binding = "DB" # i.e. available in your Worker on env.DB
 database_name = "cloudflare-hono-lucia-auth"
+database_id = "0b81bfca-1b9c-46ad-8a92-5fe92545e109"

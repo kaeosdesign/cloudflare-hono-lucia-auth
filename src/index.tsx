@@ -17,7 +17,7 @@ import { generateRandomString, alphabet } from "oslo/crypto";
 async function generateEmailVerificationCode(
   db: D1Database,
   userId: string,
-  email: string,
+  email: string
 ) {
   await db
     .prepare("delete from email_verification_codes where user_id = ?")
@@ -27,7 +27,7 @@ async function generateEmailVerificationCode(
   const code = generateRandomString(8, alphabet("0-9"));
   await db
     .prepare(
-      "insert into email_verification_codes (user_id, email, code, expires_at) values (?,?,?,?)",
+      "insert into email_verification_codes (user_id, email, code, expires_at) values (?,?,?,?)"
     )
     .bind(userId, email, code, createDate(new TimeSpan(15, "m")).toString())
     .run();
@@ -105,7 +105,7 @@ const sendEmailOrLog = async (
   env: Bindings,
   recipient: string,
   subject: string,
-  content: string,
+  content: string
 ) => {
   const body = {
     personalizations: [
@@ -201,7 +201,7 @@ app.get("/", (c) => {
         <form method="post" action="/logout">
           <button>logout</button>
         </form>
-      </Layout>,
+      </Layout>
     );
   } else {
     return c.html(
@@ -209,7 +209,7 @@ app.get("/", (c) => {
         <a href="/signup">signup</a>
         <br />
         <a href="/login">login</a>
-      </Layout>,
+      </Layout>
     );
   }
 });
@@ -217,24 +217,24 @@ app.get("/", (c) => {
 app.get("/signup", (c) => {
   return c.html(
     <Layout>
-      <form method="POST">
+      <form method="post">
         <input name="email" autocomplete="off" />
         <input name="password" />
         <button>signup</button>
       </form>
-    </Layout>,
+    </Layout>
   );
 });
 
 app.get("/login", (c) => {
   return c.html(
     <Layout>
-      <form method="POST">
+      <form method="post">
         <input name="email" autocomplete="off" />
         <input name="password" />
         <button>login</button>
       </form>
-    </Layout>,
+    </Layout>
   );
 });
 
@@ -245,7 +245,7 @@ app.post(
     z.object({
       email: z.string().email(),
       password: z.string().min(1),
-    }),
+    })
   ),
   async (c) => {
     const { email, password } = c.req.valid("form");
@@ -256,7 +256,7 @@ app.post(
 
     try {
       const insertedUser = await c.env.DB.prepare(
-        "insert into users (id, email, hashed_password, email_verified) values (?,?,?,?) returning *",
+        "insert into users (id, email, hashed_password, email_verified) values (?,?,?,?) returning *"
       )
         .bind(userId, email, hashedPassword, false)
         .first();
@@ -266,7 +266,7 @@ app.post(
       const verificationCode = await generateEmailVerificationCode(
         c.env.DB,
         userId,
-        email,
+        email
       );
       console.log(verificationCode);
 
@@ -274,7 +274,7 @@ app.post(
         c.env,
         email,
         "Welcome",
-        "Your verification code is " + verificationCode,
+        "Your verification code is " + verificationCode
       );
 
       const session = await lucia.createSession(userId, {});
@@ -287,7 +287,7 @@ app.post(
       console.error(error);
       return c.body("Something went wrong", 400);
     }
-  },
+  }
 );
 
 app.post(
@@ -297,7 +297,7 @@ app.post(
     z.object({
       email: z.string().email(),
       password: z.string().min(1),
-    }),
+    })
   ),
   async (c) => {
     const { email, password } = c.req.valid("form");
@@ -312,7 +312,7 @@ app.post(
     }
     const validPassword = await new Scrypt().verify(
       user.hashed_password,
-      password,
+      password
     );
     if (!validPassword) {
       return c.body("Invalid email or password", 400);
@@ -324,7 +324,7 @@ app.post(
       append: true,
     });
     return c.redirect("/");
-  },
+  }
 );
 
 app.post("/logout", async (c) => {
@@ -343,11 +343,11 @@ app.post("/logout", async (c) => {
 async function verifyVerificationCode(
   db: D1Database,
   user: User,
-  code: string,
+  code: string
 ) {
   const databaseCode = await db
     .prepare(
-      "delete from email_verification_codes where user_id = ? and code = ? and email = ? returning *",
+      "delete from email_verification_codes where user_id = ? and code = ? and email = ? returning *"
     )
     .bind(user.id, code, user.email)
     .first<EmailVerificationCode>();
@@ -369,7 +369,7 @@ app.post(
     "form",
     z.object({
       code: z.string().min(1),
-    }),
+    })
   ),
   async (c) => {
     const user = c.get("user");
@@ -394,7 +394,7 @@ app.post(
       append: true,
     });
     return c.redirect("/");
-  },
+  }
 );
 
 export default app;
